@@ -10,7 +10,7 @@ cp .env.example .env
 
 ## テーブルを再生成してシーディングも実行
 ```bash
-. migrate.sh up --seed
+. migrate.sh fresh --seed
 ```
 
 ## テーブル生成
