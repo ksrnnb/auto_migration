@@ -2,9 +2,7 @@
 
 # run docker
 function runDocker() {
-  docker-compose up -d
   docker-compose run db bash migrate_main.sh "$@"
-  docker-compose down
 }
 
 CONTAINER_ID=`docker ps | awk '{print $1}' | tail -1`

@@ -8,13 +8,15 @@ SEEDER_DIR="./migration/seeders"
 function usage() {
   cat <<EOF
 
-arguments: up|fresh|seed
+arguments: up|fresh|seed|make
 
   up: create database and tables
   
   fresh: drop database, recreate database and tables
 
   seed: execute seeder sql queries
+
+  make: make migration file
 
 EOF
 }
@@ -52,26 +54,38 @@ function createDatabase() {
 
 # マイグレーション実行
 function migrate() {
-  for ARG in "$@"
-  do
-    case $ARG in
-      seed|--seed)
-        executeSQL $SEEDER_DIR
-        ;;
-      up)
-        createDatabase
-        executeSQL $UP_DIR
-        ;;
-      fresh)
-        dropTables
-        executeSQL $UP_DIR
-        ;;
-      *)
-        usage
-        break
-        ;;
-    esac
-  done
+  case "$1" in
+    seed)
+      executeSQL $SEEDER_DIR
+      ;;
+    up)
+      createDatabase
+      executeSQL $UP_DIR
+      ;;
+    fresh)
+      dropTables
+      executeSQL $UP_DIR
+      if [ "$2" = --seed ]
+      then
+          executeSQL $SEEDER_DIR
+      fi
+      ;;
+    make)
+      fileName="$2"
+      dir=""
+      if [ "${fileName: -6}" = seeder ] || [ "${fileName: -6}" = Seeder ]
+      then
+        dir="$SEEDER_DIR"
+      else
+        dir="$UP_DIR"
+      fi
+      touch "$dir"/`date +%Y%m%d%H%M%S_"$2".sql`
+      ;;
+    *)
+      usage
+      break
+      ;;
+  esac
 }
 
 # 環境変数の読み込み
